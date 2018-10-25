@@ -37,7 +37,7 @@
 	   如果程序在运行过程中动态修改了PLL倍频系数，或者切换了时钟源，请务必执行一次 SystemCoreClockUpdate()
 	   函数，这个函数会自动根据PLL倍频参数计算出实际的主频。
 	
-	6、为了USB, SDIO，RNG时钟都能够稳定运行，系统主频定为168MHz，用户可以根据需要选择180MHz和192MHz的超频。
+	6、为了USB, SDIO，RNG时钟都能够稳定运行，系统主频定为168MHz，用户可以根据需要选择180MHz或者超频到192MHz。
 	   在此文件的PLL_N，PLL_M，PLL_P和PLL_Q的参数配置部分，用户可以选择相应的条件编译。
 */
 /**
@@ -451,30 +451,6 @@
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////
-#if 1  /* 8M晶振， 系统主频 168M， USB & SDIO时钟 48M  */
-   /* PLL_VCO = (HSE_VALUE / PLL_M) * PLL_N = 336MHz  正常值 192-432 */
-   #define PLL_M      8
-   #define PLL_N      336
-   
-   /* USB OTG FS, SDIO and RNG Clock =  PLL_VCO / PLLQ = 48MHz */
-   #define PLL_Q      7
-
-   /* SYSCLK = PLL_VCO / PLL_P = 168MHz*/
-   #define PLL_P      2
-#endif
-
-#if 0   /* 外部晶振8MHz, 系统主频 180MHz， USB & SDIO时钟 51.4M  */
-   /* PLL_VCO = (HSE_VALUE / PLL_M) * PLL_N = 360MHz  */
-   #define PLL_M      8
-   #define PLL_N      360
-   
-   /* USB OTG FS, SDIO and RNG Clock =  PLL_VCO / PLLQ = 51.4MHz */
-   #define PLL_Q      7
-
-   /* SYSCLK = PLL_VCO / PLL_P = 180MHz*/
-   #define PLL_P      2
-#endif
-
 #if 0   /* 外部晶振8MHz, 系统主频 180MHz， USB & SDIO时钟 48M  */
    /* PLL_VCO = (HSE_VALUE / PLL_M) * PLL_N = 720MHz （超频） 正常值 192-432 */
    #define PLL_M      4
@@ -485,6 +461,30 @@
 
    /* SYSCLK = PLL_VCO / PLL_P = 180MHz*/
    #define PLL_P      4
+#endif
+
+#if 0   /* 外部晶振8MHz, 系统主频 180MHz， USB & SDIO时钟51.4MHz，非标准的48MHz */
+   /* PLL_VCO = (HSE_VALUE / PLL_M) * PLL_N  */
+   #define PLL_M      8
+   #define PLL_N      360
+   
+   /* USB OTG FS, SDIO and RNG Clock =  PLL_VCO / PLLQ = 48MHz */
+   #define PLL_Q      7
+
+   /* SYSCLK = PLL_VCO / PLL_P = 180MHz*/
+   #define PLL_P      2
+#endif
+
+#if 1   /* 8M晶振， 系统主频 168M， USB & SDIO时钟 48M  */
+   /* PLL_VCO = (HSE_VALUE / PLL_M) * PLL_N = 336MHz  正常值 192-432 */
+   #define PLL_M      8
+   #define PLL_N      336
+   
+   /* USB OTG FS, SDIO and RNG Clock =  PLL_VCO / PLLQ = 48MHz */
+   #define PLL_Q      7
+
+   /* SYSCLK = PLL_VCO / PLL_P = 168MHz*/
+   #define PLL_P      2
 #endif
 
 #if 0   /* 8M晶振， 系统主频 192M (超频)， USB & SDIO时钟 48M  */

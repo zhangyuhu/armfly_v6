@@ -21,11 +21,7 @@
 *
 *********************************************************************************************************
 */	
-#include "bsp.h"		
-#include <RTL.h>
-#include <stdio.h>
-#include <Net_Config.h>
-
+#include "includes.h"	
 
 
 
@@ -158,25 +154,6 @@ uint8_t TCP_StatusCheck(void)
 
 /*
 *********************************************************************************************************
-*	函 数 名: tcpnet_poll
-*	功能说明: 使用TCPnet必须要一直调用的函数
-*	形    参: 无
-*	返 回 值: 无
-*********************************************************************************************************
-*/
-void tcpnet_poll(void)
-{
-	if(bsp_CheckTimer(0))
-	{
-		/* 此函数坚决不可以放在中断里面跑 */
-		timer_tick ();
-	}
-	
-	main_TcpNet ();
-}
-
-/*
-*********************************************************************************************************
 *	函 数 名: TCPnetTest
 *	功能说明: TCPnet应用
 *	形    参: 无
@@ -190,47 +167,46 @@ void TCPnetTest(void)
 	uint8_t tcp_status;
 	uint16_t maxlen;
 	uint8_t res;
-	uint8_t ucKeyCode;
+	const TickType_t xTicksToWait = 2; /* 延迟2ms */
+	EventBits_t uxBits;
 	
-	
-	/* 初始化网络协议栈 */
-	init_TcpNet ();
-
 	/* 
 	   创建TCP Socket并创建监听，客户端连接服务器后，10秒内无数据通信将断开连接。
 	   但是由于这里使能了TCP_TYPE_KEEP_ALIVE，会一直保持连接，不受10秒的时间限制。
 	*/
-    socket_tcp = tcp_get_socket (TCP_TYPE_SERVER | TCP_TYPE_KEEP_ALIVE, 0, 10, tcp_callback);
+    socket_tcp = tcp_get_socket (TCP_TYPE_SERVER|TCP_TYPE_KEEP_ALIVE, 0, 10, tcp_callback);
 	if(socket_tcp != 0)
 	{
 		res = tcp_listen (socket_tcp, PORT_NUM);
 		printf_debug("tcp listen res = %d\r\n", res);
 	}
-
-	/* 创建一个周期是100ms的软定时器 */
-    bsp_StartAutoTimer(0, 100);
 	
 	while (1) 
 	{
-		/* TCP轮询 */
-		tcpnet_poll();
+		/* RL-TCPnet处理函数 */
+		main_TcpNet();
 		
 		/* 用于网线插拔的处理 */
 		tcp_status = TCP_StatusCheck();
-		
-		/* 按键消息的处理 */
-		ucKeyCode = bsp_GetKey();
-		if ((ucKeyCode != KEY_NONE)&&(tcp_status == __TRUE))
+
+		/* 等待所有任务发来事件标志 */
+		uxBits = xEventGroupWaitBits(xCreatedEventGroup, /* 事件标志组句柄 */
+							         0xFFFF,       		 /* 等待0xFFFF某一位被设置 */
+							         pdTRUE,             /* 退出前0xFFFF位被清除，这里是任意0xFFFF位被设置就“退出”*/
+							         pdFALSE,            /* 设置为pdTRUE表示等待0xFFFF任意位被设置*/
+							         xTicksToWait); 	 /* 等待延迟时间 */
+
+		if((uxBits != 0)&&(tcp_status == __TRUE))
 		{
-			switch (ucKeyCode)
+			switch (uxBits)
 			{
-				/* K1键按下，给远程TCP客户端发送8字节数据 */
-				case KEY_DOWN_K1:			  
+				/* 接收到K1键按下，给远程TCP客户端发送8字节数据 */
+				case KEY1_BIT0:			  
 					printf_debug("tcp_get_state(socket_tcp) = %d\r\n", tcp_get_state(socket_tcp));
 					iCount = 8;
 					do
 					{
-						tcpnet_poll();
+						main_TcpNet();
 						if (tcp_check_send (socket_tcp) == __TRUE) 
 						{
 							maxlen = tcp_max_dsize (socket_tcp);
@@ -259,13 +235,13 @@ void TCPnetTest(void)
 					}while(iCount > 0);
 					break;
 
-				/* K2键按下，给远程TCP客户端发送1024字节的数据 */
-				case KEY_DOWN_K2:		
+				/* 接收到K2键按下，给远程TCP客户端发送1024字节的数据 */
+				case KEY2_BIT1:		
 					printf_debug("tcp_get_state(socket_tcp) = %d\r\n", tcp_get_state(socket_tcp));
 					iCount = 1024;
 					do
 					{
-						tcpnet_poll();
+						main_TcpNet();
 						if (tcp_check_send (socket_tcp) == __TRUE) 
 						{
 							maxlen = tcp_max_dsize (socket_tcp);
@@ -295,13 +271,13 @@ void TCPnetTest(void)
 					}while(iCount > 0);					
 					break;
 					
-				/* K3键按下，给远程TCP客户端发送5MB数据 */
-				case KEY_DOWN_K3:			  
+				/* 接收到K3键按下，给远程TCP客户端发送5MB数据 */
+				case KEY3_BIT2:			  
 					printf_debug("tcp_get_state(socket_tcp) = %d\r\n", tcp_get_state(socket_tcp));
 					iCount = 5*1024*1024;
 					do
 					{
-						tcpnet_poll();
+						main_TcpNet();
 						if (tcp_check_send (socket_tcp) == __TRUE) 
 						{
 							maxlen = tcp_max_dsize (socket_tcp);

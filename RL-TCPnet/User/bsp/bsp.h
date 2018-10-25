@@ -28,9 +28,18 @@
 /* CPU空闲时执行的函数 */
 //#define CPU_IDLE()		bsp_Idle()
 
-/* 开关全局中断的宏 */
-#define ENABLE_INT()	__set_PRIMASK(0)	/* 使能全局中断 */
-#define DISABLE_INT()	__set_PRIMASK(1)	/* 禁止全局中断 */
+#define USE_FreeRTOS      1
+
+#if USE_FreeRTOS == 1
+	#include "FreeRTOS.h"
+	#include "task.h"
+	#define DISABLE_INT()    taskENTER_CRITICAL()
+	#define ENABLE_INT()     taskEXIT_CRITICAL()
+#else
+	/* 开关全局中断的宏 */
+	#define ENABLE_INT()	__set_PRIMASK(0)	/* 使能全局中断 */
+	#define DISABLE_INT()	__set_PRIMASK(1)	/* 禁止全局中断 */
+#endif
 
 /* 这个宏仅用于调试阶段排错 */
 #define BSP_Printf		printf
@@ -63,13 +72,11 @@
 #include "bsp_ext_io.h"
 #include "bsp_uart_fifo.h"
 #include "bsp_led.h"
-#include "bsp_timer.h"
+//#include "bsp_timer.h"
 #include "bsp_key.h"
-#include "bsp_dwt.h"
 //#include "bsp_msg.h"
-#include "Serial.h"
 
-//#include "bsp_tim_pwm.h"
+#include "bsp_tim_pwm.h"
 
 //#include "bsp_cpu_flash.h"
 //#include "bsp_sdio_sd.h"
@@ -83,7 +90,7 @@
 //#include "bsp_wm8978.h"
 //#include "bsp_gt811.h"
 
-#include "bsp_fmc_sdram.h"
+//#include "bsp_fmc_sdram.h"
 //#include "bsp_nand_flash.h"
 
 //#include "bsp_tft_429.h"
