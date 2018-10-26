@@ -1,17 +1,17 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : CAN驱动
-*	文件名称 : CAN_STM32F40x.c
-*	版    本 : V1.0
-*	说    明 : 本文件来自KEIL官方，为支持V6开发板，修改的地方
+*    模块名称 : CAN驱动
+*    文件名称 : CAN_STM32F40x.c
+*    版    本 : V1.0
+*    说    明 : 本文件来自KEIL官方，为支持V6开发板，修改的地方
 *              1. 修改CAN1使用的驱动引脚。
-*              
-*	修改记录 :
-*		版本号    日期         作者            说明
+*
+*    修改记录 :
+*        版本号    日期         作者            说明
 *       V1.0    2017-02-28   Eric2013    1. RL-FlashFS版本V4.74
 *
-*	Copyright (C), 2015-2020, 安富莱电子 www.armfly.com
+*    Copyright (C), 2015-2020, 安富莱电子 www.armfly.com
 *
 *********************************************************************************************************
 */
@@ -146,37 +146,37 @@ static CAN_ERROR CAN_hw_set_baudrate (U32 ctrl, U32 baudrate)  {
 CAN_ERROR CAN_hw_setup (U32 ctrl)  {
 
   switch (ctrl) {
-    case 1: 
-      #if USE_CAN_CTRL1 == 1   
-		#if 1
-			/* Enable clock for CAN1 and GPIOA */
-			RCC->APB1ENR   |= (1 << 25);
-			RCC->AHB1ENR   |= (1 <<  0);
-		
-			/* CAN1, use PA11, PA12 */
-			GPIOA->MODER   &= ~(( 3 << ( 11 << 1)) | ( 3 << ( 12 << 1)));
-			GPIOA->MODER   |=  (( 2 << ( 11 << 1)) | ( 2 << ( 12 << 1)));
-			GPIOA->OTYPER  &= ~(( 1 <<   11)       | ( 1 <<   12      ));
-			GPIOA->OSPEEDR &= ~(( 3 << ( 11 << 1)) | ( 3 << ( 12 << 1)));
-			GPIOA->PUPDR   &= ~(( 3 << ( 11 << 1)) | ( 3 << ( 12 << 1)));
-		
-			GPIOA->AFR[1]  &= ~((15 << ( 3 << 2)) | (15 << ( 4 << 2)));
-			GPIOA->AFR[1]  |=  (( 9 << ( 3 << 2)) | ( 9 << ( 4 << 2)));
-		#else 
-			RCC->APB1ENR   |= (1 << 25);
-			RCC->AHB1ENR   |= (1 <<  1);
-			
-			/* CAN1, use PB8, PB9 */
-			GPIOB->MODER   &= ~(( 3 << ( 8 << 1)) | ( 3 << ( 9 << 1)));
-			GPIOB->MODER   |=  (( 2 << ( 8 << 1)) | ( 2 << ( 9 << 1)));
-			GPIOB->OTYPER  &= ~(( 1 <<   8)       | ( 1 <<   9      ));
-			GPIOB->OSPEEDR &= ~(( 3 << ( 8 << 1)) | ( 3 << ( 9 << 1)));
-			GPIOB->PUPDR   &= ~(( 3 << ( 8 << 1)) | ( 3 << ( 9 << 1)));
-		
-			GPIOB->AFR[1]  &= ~((15 << ( 0 << 2)) | (15 << ( 1 << 2)));
-			GPIOB->AFR[1]  |=  (( 9 << ( 0 << 2)) | ( 9 << ( 1 << 2)));
-		#endif
-	
+    case 1:
+      #if USE_CAN_CTRL1 == 1
+        #if 1
+            /* Enable clock for CAN1 and GPIOA */
+            RCC->APB1ENR   |= (1 << 25);
+            RCC->AHB1ENR   |= (1 <<  0);
+
+            /* CAN1, use PA11, PA12 */
+            GPIOA->MODER   &= ~(( 3 << ( 11 << 1)) | ( 3 << ( 12 << 1)));
+            GPIOA->MODER   |=  (( 2 << ( 11 << 1)) | ( 2 << ( 12 << 1)));
+            GPIOA->OTYPER  &= ~(( 1 <<   11)       | ( 1 <<   12      ));
+            GPIOA->OSPEEDR &= ~(( 3 << ( 11 << 1)) | ( 3 << ( 12 << 1)));
+            GPIOA->PUPDR   &= ~(( 3 << ( 11 << 1)) | ( 3 << ( 12 << 1)));
+
+            GPIOA->AFR[1]  &= ~((15 << ( 3 << 2)) | (15 << ( 4 << 2)));
+            GPIOA->AFR[1]  |=  (( 9 << ( 3 << 2)) | ( 9 << ( 4 << 2)));
+        #else
+            RCC->APB1ENR   |= (1 << 25);
+            RCC->AHB1ENR   |= (1 <<  1);
+
+            /* CAN1, use PB8, PB9 */
+            GPIOB->MODER   &= ~(( 3 << ( 8 << 1)) | ( 3 << ( 9 << 1)));
+            GPIOB->MODER   |=  (( 2 << ( 8 << 1)) | ( 2 << ( 9 << 1)));
+            GPIOB->OTYPER  &= ~(( 1 <<   8)       | ( 1 <<   9      ));
+            GPIOB->OSPEEDR &= ~(( 3 << ( 8 << 1)) | ( 3 << ( 9 << 1)));
+            GPIOB->PUPDR   &= ~(( 3 << ( 8 << 1)) | ( 3 << ( 9 << 1)));
+
+            GPIOB->AFR[1]  &= ~((15 << ( 0 << 2)) | (15 << ( 1 << 2)));
+            GPIOB->AFR[1]  |=  (( 9 << ( 0 << 2)) | ( 9 << ( 1 << 2)));
+        #endif
+
         /* Enable CAN1 interrupts */
         NVIC_SetPriority (CAN1_TX_IRQn,  1);
         NVIC_SetPriority (CAN1_RX0_IRQn, 1);
@@ -184,12 +184,12 @@ CAN_ERROR CAN_hw_setup (U32 ctrl)  {
         NVIC_EnableIRQ   (CAN1_RX0_IRQn);
       #endif
       break;
-    case 2: 
+    case 2:
       #if USE_CAN_CTRL2 == 1
         /* Enable clock for CAN2 and GPIOB */
         RCC->APB1ENR   |= (1 << 25) | (1 << 26);
         RCC->AHB1ENR   |= (1 <<  1);
-	
+
         /* CAN2, use PB12, PB13 */
         GPIOB->MODER   &= ~(( 3 << ( 12 << 1)) | ( 3 << (13 << 1)));
         GPIOB->MODER   |=  (( 2 << ( 12 << 1)) | ( 2 << (13 << 1)));
@@ -200,7 +200,7 @@ CAN_ERROR CAN_hw_setup (U32 ctrl)  {
         GPIOB->AFR[1]  |=   ( 9 << ( 4 << 2));
         GPIOB->AFR[1]  &= ~ (15 << ( 5 << 2));
         GPIOB->AFR[1]  |=   ( 9 << ( 5 << 2));
-	
+
         /* Enable CAN2 interrupts */
         NVIC_SetPriority (CAN2_TX_IRQn,  1);
         NVIC_SetPriority (CAN2_RX0_IRQn, 1);
@@ -208,7 +208,7 @@ CAN_ERROR CAN_hw_setup (U32 ctrl)  {
         NVIC_EnableIRQ   (CAN2_RX0_IRQn);
       #endif
       break;
-	  
+
     default:
       return CAN_UNEXIST_CTRL_ERROR;
   }
@@ -273,7 +273,7 @@ CAN_ERROR CAN_hw_start (U32 ctrl)  {
 CAN_ERROR CAN_hw_testmode (U32 ctrl, U32 testmode) {
   CAN_TypeDef *CANx = CAN_CTRL[ctrl-1];
 
-  CANx->BTR &= ~((1U << 31) | (1 << 30)); 
+  CANx->BTR &= ~((1U << 31) | (1 << 30));
   CANx->BTR |=  (testmode & ((1U << 31) | (1 << 30)));
 
   return CAN_OK;
@@ -294,7 +294,7 @@ CAN_ERROR CAN_hw_tx_empty (U32 ctrl)  {
   if ((os_sem_wait (wr_sem[ctrl-1], 0) != OS_R_TMO)){ /* If semaphore is free*/
     if ((CANx->TSR & (1 << 26)) != 0) /* Transmit mailbox 0 is empty         */
       return CAN_OK;
-    else 
+    else
       os_sem_send(wr_sem[ctrl-1]);    /* Return a token back to semaphore    */
   }
 
@@ -343,7 +343,7 @@ CAN_ERROR CAN_hw_wr (U32 ctrl, CAN_msg *msg)  {
   CANx->sTxMailBox[0].TDTR &= ~0x0000000F;
   CANx->sTxMailBox[0].TDTR |=  (msg->len & 0x0000000F);
 
-  CANx->IER |= (1 << 0);                           /*  enable  TME interrupt */ 
+  CANx->IER |= (1 << 0);                           /*  enable  TME interrupt */
 
   /*  transmit message                                                       */
   CANx->sTxMailBox[0].TIR  |=  (1 << 0);                   /*   set TXRQ bit */
@@ -413,12 +413,12 @@ CAN_ERROR CAN_hw_set (U32 ctrl, CAN_msg *msg)  {
 
 /*--------------------------- CAN_hw_rx_object_chk --------------------------
  *
- *  This function checks if an object that is going to be used for the message 
+ *  This function checks if an object that is going to be used for the message
  *  reception can be added to the Filter Bank
  *
  *  Parameter:  ctrl:       Index of the hardware CAN controller (1 .. x)
  *              bank:       Index of the Filter bank (0..__FILTER_BANK_MAX)
- *              object_para:Object parameters (standard or extended format, 
+ *              object_para:Object parameters (standard or extended format,
  *                          data or remote frame)
  *
  *  Return:     BOOL:  True   Object can     be added to Filter Bank
@@ -446,7 +446,7 @@ BOOL CAN_hw_rx_object_chk (U32 ctrl, U16 bank, U32 object_para)  {
       else if ((CANx->sFilterRegister[bank].FR2 & 0xFFFF0000) == 0) { /* check if position n+3 is used */
         return __TRUE;
       }
- 
+
     }
     else if (((CANx->FS1R & (1UL << bank)) != 0) &&                   /* 32-bit identifier format is used */
             ((object_para & FORMAT_TYPE) == EXTENDED_TYPE)) {         /* Extended identifier must be added */
@@ -464,13 +464,13 @@ BOOL CAN_hw_rx_object_chk (U32 ctrl, U16 bank, U32 object_para)  {
 
 /*--------------------------- CAN_hw_rx_object_add --------------------------
  *
- *  This function adds an object that is going to be used for the message 
+ *  This function adds an object that is going to be used for the message
  *  reception to the Filter Bank
  *
  *  Parameter:  ctrl:       Index of the hardware CAN controller (1 .. x)
  *              bank:       Index of the Filter bank (0..__FILTER_BANK_MAX)
  *              id:         Identifier of receiving messages
- *              object_para:Object parameters (standard or extended format, 
+ *              object_para:Object parameters (standard or extended format,
  *                          data or remote frame)
  *
  *  Return:     none
@@ -484,7 +484,7 @@ void CAN_hw_rx_object_add (U32 ctrl, U16 bank, U32 id, U32 object_para)  {
 
   if ((CANx->FA1R & (1UL << bank)) == 0) {                            /* filter bank unused ? */
                                                                       /* add identifier */
-    if ((object_para & FORMAT_TYPE) == STANDARD_TYPE)  {              /* Standard format used */ 
+    if ((object_para & FORMAT_TYPE) == STANDARD_TYPE)  {              /* Standard format used */
       CANx->FM1R |=  (1UL << bank);                                   /* Two 32-bit registers of filter bank x are in Identifier List mode */
       CANx->FS1R &= ~(1UL << bank);                                   /* Dual 16-bit scale configuration */
 
@@ -546,13 +546,13 @@ void CAN_hw_rx_object_add (U32 ctrl, U16 bank, U32 id, U32 object_para)  {
 
 /*--------------------------- CAN_hw_rx_object ------------------------------
  *
- *  This function setups object that is going to be used for the message 
+ *  This function setups object that is going to be used for the message
  *  reception
  *
  *  Parameter:  ctrl:       Index of the hardware CAN controller (1 .. x)
  *              ch:         Index of object used for reception
  *              id:         Identifier of receiving messages
- *              object_para:Object parameters (standard or extended format, 
+ *              object_para:Object parameters (standard or extended format,
  *                          data or remote frame)
  *
  *  Return:     CAN_ERROR:  Error code
@@ -561,11 +561,11 @@ void CAN_hw_rx_object_add (U32 ctrl, U16 bank, U32 id, U32 object_para)  {
 CAN_ERROR CAN_hw_rx_object (U32 ctrl, U32 ch, U32 id, U32 object_para)  {
   U16 CAN_filterBnk = 0;
   U16 CAN_filterIdx = 0;
-  
+
   /* find free filter */
   switch (ctrl) {
     case __CTRL1:        /* for CTRL1 we check from 0 .. __FILTER_BANK_MAX - CAN2_filterIdx */
-      CAN_filterIdx = (CAN2_filterIdx == 0) ? __FILTER_BANK_MAX : __FILTER_BANK_MAX - CAN2_filterIdx - 1; 
+      CAN_filterIdx = (CAN2_filterIdx == 0) ? __FILTER_BANK_MAX : __FILTER_BANK_MAX - CAN2_filterIdx - 1;
 
       for (CAN_filterBnk = 0; CAN_filterBnk < CAN_filterIdx; CAN_filterBnk++) {
         if (CAN_hw_rx_object_chk (ctrl, CAN_filterBnk, object_para) == __TRUE) {
@@ -576,7 +576,7 @@ CAN_ERROR CAN_hw_rx_object (U32 ctrl, U32 ch, U32 id, U32 object_para)  {
       break;
 
     case __CTRL2:        /* for CTRL2 we check from __FILTER_BANK_MAX .. [1 | CAN1_filterIdx] */
-      CAN_filterIdx = (CAN1_filterIdx == 0) ? 0 : CAN1_filterIdx - 1; 
+      CAN_filterIdx = (CAN1_filterIdx == 0) ? 0 : CAN1_filterIdx - 1;
 
       for (CAN_filterBnk = __FILTER_BANK_MAX; CAN_filterBnk > CAN_filterIdx; CAN_filterBnk--) {
         if (CAN_hw_rx_object_chk (ctrl, CAN_filterBnk, object_para) == __TRUE) {
@@ -597,13 +597,13 @@ CAN_ERROR CAN_hw_rx_object (U32 ctrl, U32 ch, U32 id, U32 object_para)  {
 
 /*--------------------------- CAN_hw_tx_object ------------------------------
  *
- *  This function setups object that is going to be used for the message 
- *  transmission, the setup of transmission object is not necessery so this 
+ *  This function setups object that is going to be used for the message
+ *  transmission, the setup of transmission object is not necessery so this
  *  function is not implemented
  *
  *  Parameter:  ctrl:       Index of the hardware CAN controller (1 .. x)
  *              ch:         Index of object used for transmission
- *              object_para:Object parameters (standard or extended format, 
+ *              object_para:Object parameters (standard or extended format,
  *                          data or remote frame)
  *
  *  Return:     CAN_ERROR:  Error code
@@ -619,10 +619,10 @@ CAN_ERROR CAN_hw_tx_object (U32 ctrl, U32 ch, U32 object_para)  {
 
 /*--------------------------- CAN_IRQ_Handler -------------------------------
  *
- *  CAN interrupt function 
- *  If transmit interrupt occured and there are messages in mailbox for 
+ *  CAN interrupt function
+ *  If transmit interrupt occured and there are messages in mailbox for
  *  transmit it writes it to hardware and starts the transmission
- *  If receive interrupt occured it reads message from hardware registers 
+ *  If receive interrupt occured it reads message from hardware registers
  *  and puts it into receive mailbox
  *---------------------------------------------------------------------------*/
 
@@ -632,7 +632,7 @@ void CAN1_TX_IRQHandler (void) {
   if (CAN1->TSR & (1 << 0)) {                     /* request completed mbx 0 */
     CAN1->TSR |= (1 << 0);                   /* reset request complete mbx 0 */
 
-    /* If there is a message in the mailbox ready for send, read the 
+    /* If there is a message in the mailbox ready for send, read the
        message from the mailbox and send it                                  */
     if (isr_mbx_receive (MBX_tx_ctrl[__CTRL1-1], (void **)&ptrmsg) != OS_R_OK) {
 
@@ -641,7 +641,7 @@ void CAN1_TX_IRQHandler (void) {
     } else {
       isr_sem_send(wr_sem[__CTRL1-1]);   /* Return a token back to semaphore */
 
-      CAN1->IER &= ~(1 << 0);                      /* disable  TME interrupt */ 
+      CAN1->IER &= ~(1 << 0);                      /* disable  TME interrupt */
     }
   }
 }
@@ -670,7 +670,7 @@ void CAN2_TX_IRQHandler (void) {
   if (CAN2->TSR & (1 << 0)) {                     /* request completed mbx 0 */
     CAN2->TSR |= (1 << 0);                   /* reset request complete mbx 0 */
 
-    /* If there is a message in the mailbox ready for send, read the 
+    /* If there is a message in the mailbox ready for send, read the
        message from the mailbox and send it                                  */
     if (isr_mbx_receive (MBX_tx_ctrl[__CTRL2-1], (void **)&ptrmsg) != OS_R_OK) {
 
@@ -679,7 +679,7 @@ void CAN2_TX_IRQHandler (void) {
     } else {
       isr_sem_send(wr_sem[__CTRL2-1]);   /* Return a token back to semaphore */
 
-      CAN2->IER &= ~(1 << 0);                      /* disable  TME interrupt */ 
+      CAN2->IER &= ~(1 << 0);                      /* disable  TME interrupt */
     }
   }
 }

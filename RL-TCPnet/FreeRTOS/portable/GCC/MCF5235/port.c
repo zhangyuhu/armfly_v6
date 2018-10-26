@@ -28,27 +28,27 @@
     ***************************************************************************
     *                                                                         *
     * Get the FreeRTOS eBook!  See http://www.FreeRTOS.org/Documentation      *
-	*                                                                         *
-	* This is a concise, step by step, 'hands on' guide that describes both   *
-	* general multitasking concepts and FreeRTOS specifics. It presents and   *
-	* explains numerous examples that are written using the FreeRTOS API.     *
-	* Full source code for all the examples is provided in an accompanying    *
-	* .zip file.                                                              *
+    *                                                                         *
+    * This is a concise, step by step, 'hands on' guide that describes both   *
+    * general multitasking concepts and FreeRTOS specifics. It presents and   *
+    * explains numerous examples that are written using the FreeRTOS API.     *
+    * Full source code for all the examples is provided in an accompanying    *
+    * .zip file.                                                              *
     *                                                                         *
     ***************************************************************************
     ***************************************************************************
 
-	Please ensure to read the configuration and relevant port sections of the
-	online documentation.
+    Please ensure to read the configuration and relevant port sections of the
+    online documentation.
 
-	http://www.FreeRTOS.org - Documentation, latest information, license and 
-	contact details.
+    http://www.FreeRTOS.org - Documentation, latest information, license and
+    contact details.
 
-	http://www.SafeRTOS.com - A version that is certified for use in safety 
-	critical systems.
+    http://www.SafeRTOS.com - A version that is certified for use in safety
+    critical systems.
 
-	http://www.OpenRTOS.com - Commercial support, development, porting, 
-	licensing and training services.
+    http://www.OpenRTOS.com - Commercial support, development, porting,
+    licensing and training services.
 */
 
 #include <stdlib.h>
@@ -210,9 +210,9 @@ prvPortPreemptiveTick( void )
     portSAVE_CONTEXT(  );
     MCF_PIT_PCSR0 |= MCF_PIT_PCSR_PIF;
     if( xTaskIncrementTick() != pdFALSE )
-	{
-		vTaskSwitchContext(  );
-	}
+    {
+        vTaskSwitchContext(  );
+    }
     portRESTORE_CONTEXT(  );
 }
 #endif

@@ -1,16 +1,16 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : VS1053B mp3解码器模块
-*	文件名称 : bsp_vs1053b.c
-*	版    本 : V1.0
-*	说    明 : VS1053B芯片底层驱动。
+*    模块名称 : VS1053B mp3解码器模块
+*    文件名称 : bsp_vs1053b.c
+*    版    本 : V1.0
+*    说    明 : VS1053B芯片底层驱动。
 *
-*	修改记录 :
-*		版本号  日期        作者     说明
-*		V1.0    2013-07-12 armfly  正式发布
+*    修改记录 :
+*        版本号  日期        作者     说明
+*        V1.0    2013-07-12 armfly  正式发布
 *
-*	Copyright (C), 2013-2014, 安富莱电子 www.armfly.com
+*    Copyright (C), 2013-2014, 安富莱电子 www.armfly.com
 *
 *********************************************************************************************************
 */
@@ -18,46 +18,46 @@
 #include "bsp.h"
 
 /*
-	安富莱STM32-V6开发板和VS1053B的口线连接：
-		PB3/SPI3_SCK
-		PB4/SPI3_MISO
-		PB5/SPI3_MOSI
+    安富莱STM32-V6开发板和VS1053B的口线连接：
+        PB3/SPI3_SCK
+        PB4/SPI3_MISO
+        PB5/SPI3_MOSI
 
-		PB8/NRF905_DR/VS1053_DREQ
-		PC2/NRF905_CSN/VS1053_XCS
-		
-		扩展IO /NRF905_TRX_CE/VS1053_XDCS  
+        PB8/NRF905_DR/VS1053_DREQ
+        PC2/NRF905_CSN/VS1053_XCS
+
+        扩展IO /NRF905_TRX_CE/VS1053_XDCS
 */
 
 #define USE_HC574
 
-#define RCC_CS	RCC_AHB1Periph_GPIOC
-#define GPIO_CS	GPIOC
-#define PIN_CS	GPIO_Pin_2	
+#define RCC_CS    RCC_AHB1Periph_GPIOC
+#define GPIO_CS    GPIOC
+#define PIN_CS    GPIO_Pin_2
 
 #define RCC_DREQ   RCC_AHB1Periph_GPIOB
 #define GPIO_DREQ  GPIOB
 #define PIN_DREQ   GPIO_Pin_8
 
 /*　XDCS */
-#ifdef USE_HC574	/* 使用扩展IO */	
-	#define VS1053_DS_0()	HC574_SetPin(VS1053_XDCS, 0);
-	#define VS1053_DS_1()	HC574_SetPin(VS1053_XDCS, 1);
+#ifdef USE_HC574    /* 使用扩展IO */
+    #define VS1053_DS_0()    HC574_SetPin(VS1053_XDCS, 0);
+    #define VS1053_DS_1()    HC574_SetPin(VS1053_XDCS, 1);
 #else
-	#define RCC_DS   RCC_AHB1Periph_GPIOA
-	#define GPIO_CS  GPIOA
-	#define PIN_DS   GPIO_Pin_5
+    #define RCC_DS   RCC_AHB1Periph_GPIOA
+    #define GPIO_CS  GPIOA
+    #define PIN_DS   GPIO_Pin_5
 
-	#define VS1053_DS_0()	GPIO_CS->BSRRH = PIN_DS
-	#define VS1053_DS_1()	GPIO_CS->BSRRL = PIN_DS
+    #define VS1053_DS_0()    GPIO_CS->BSRRH = PIN_DS
+    #define VS1053_DS_1()    GPIO_CS->BSRRL = PIN_DS
 #endif
 
-#define VS1053_CS_0()	GPIO_CS->BSRRH = PIN_CS
-#define VS1053_CS_1()	GPIO_CS->BSRRL = PIN_CS
+#define VS1053_CS_0()    GPIO_CS->BSRRH = PIN_CS
+#define VS1053_CS_1()    GPIO_CS->BSRRL = PIN_CS
 
-#define VS1053_IS_BUSY()	((GPIO_DREQ->IDR & PIN_DREQ) == 0)
+#define VS1053_IS_BUSY()    ((GPIO_DREQ->IDR & PIN_DREQ) == 0)
 
-#define DUMMY_BYTE    0xFF		/* 可定义任意值 */
+#define DUMMY_BYTE    0xFF        /* 可定义任意值 */
 
 uint8_t vs1053ram[5]={0,0,0,0,250};
 
@@ -142,661 +142,661 @@ const uint16_t plugin[605] = { /* Compressed plugin */
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_Init
-*	功能说明: 初始化vs1053B硬件设备
-*	形    参: 无
-*	返 回 值: 1 表示初始化正常，0表示初始化不正常
+*    函 数 名: vs1053_Init
+*    功能说明: 初始化vs1053B硬件设备
+*    形    参: 无
+*    返 回 值: 1 表示初始化正常，0表示初始化不正常
 *********************************************************************************************************
 */
 void vs1053_Init(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure;
 
-	/* 打开相关模块的时钟 */
-	RCC_AHB1PeriphClockCmd(RCC_CS | RCC_DREQ, ENABLE);
+    /* 打开相关模块的时钟 */
+    RCC_AHB1PeriphClockCmd(RCC_CS | RCC_DREQ, ENABLE);
 
-	/* 配置PB8作为vs1053B的数据请求 */
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;		/* 设为输入口 */
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;		/* 设为推挽模式 */
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;	/* 无需上下拉电阻 */
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	/* IO口速度 */
-	GPIO_InitStructure.GPIO_Pin = PIN_DREQ;
-	GPIO_Init(GPIO_DREQ, &GPIO_InitStructure);
+    /* 配置PB8作为vs1053B的数据请求 */
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;        /* 设为输入口 */
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;        /* 设为推挽模式 */
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;    /* 无需上下拉电阻 */
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;    /* IO口速度 */
+    GPIO_InitStructure.GPIO_Pin = PIN_DREQ;
+    GPIO_Init(GPIO_DREQ, &GPIO_InitStructure);
 
-	/* 配置PC2作为vs1053B的XCS */
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;		/* 设为输出口 */
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;		/* 设为推挽模式 */
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;	/* 上下拉电阻不使能 */
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;	/* IO口最大速度 */
-	GPIO_InitStructure.GPIO_Pin = PIN_CS;
-	GPIO_Init(GPIO_CS, &GPIO_InitStructure);
+    /* 配置PC2作为vs1053B的XCS */
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;        /* 设为输出口 */
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;        /* 设为推挽模式 */
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;    /* 上下拉电阻不使能 */
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;    /* IO口最大速度 */
+    GPIO_InitStructure.GPIO_Pin = PIN_CS;
+    GPIO_Init(GPIO_CS, &GPIO_InitStructure);
 
-#ifdef USE_HC574	/* 使用扩展IO */	
-	;
+#ifdef USE_HC574    /* 使用扩展IO */
+    ;
 #else
-	RCC_AHB1PeriphClockCmd(RCC_DS, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_DS, ENABLE);
 
-	/* 配置PA5作为vs1053B的XDCS */
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;		/* 设为输出口 */
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;		/* 设为推挽模式 */
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;	/* 上下拉电阻不使能 */
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;	/* IO口最大速度 */
-	GPIO_InitStructure.GPIO_Pin = PIN_DS;
-	GPIO_Init(GPIO_DS, &GPIO_InitStructure);
-#endif	
+    /* 配置PA5作为vs1053B的XDCS */
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;        /* 设为输出口 */
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;        /* 设为推挽模式 */
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;    /* 上下拉电阻不使能 */
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;    /* IO口最大速度 */
+    GPIO_InitStructure.GPIO_Pin = PIN_DS;
+    GPIO_Init(GPIO_DS, &GPIO_InitStructure);
+#endif
 
-	VS1053_CS_1();
-	VS1053_DS_1();	
+    VS1053_CS_1();
+    VS1053_DS_1();
 
-	/* 软件SPI模拟还是硬件SPI由 bsp_spi_bus.c 文件决定。 不要在这个地方配置SPI硬件 */
-	//bsp_CfgSPIForVS1053B();
+    /* 软件SPI模拟还是硬件SPI由 bsp_spi_bus.c 文件决定。 不要在这个地方配置SPI硬件 */
+    //bsp_CfgSPIForVS1053B();
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: bsp_CfgSPIForVS1053B
-*	功能说明: 配置STM32内部SPI硬件的工作模式、速度等参数，用于访问VS1053B
-*	形    参:  无
-*	返 回 值: 无
+*    函 数 名: bsp_CfgSPIForVS1053B
+*    功能说明: 配置STM32内部SPI硬件的工作模式、速度等参数，用于访问VS1053B
+*    形    参:  无
+*    返 回 值: 无
 *********************************************************************************************************
 */
 void bsp_CfgSPIForVS1053B(void)
 {
-	SPI_InitTypeDef  SPI_InitStructure;
+    SPI_InitTypeDef  SPI_InitStructure;
 
-	/* 打开SPI时钟 */
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
+    /* 打开SPI时钟 */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 
-	/* SPI1 配置 */
-	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;	/* 选择2线全双工模式 */
-	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;		/* CPU的SPI作为主设备 */
-	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;	/* 8个数据 */
-	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;			/* CLK引脚空闲状态电平 = 0 */
-	SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;		/* 数据采样在第1个边沿(上升沿) */
-	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;  			/* 软件控制片选 */
+    /* SPI1 配置 */
+    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;    /* 选择2线全双工模式 */
+    SPI_InitStructure.SPI_Mode = SPI_Mode_Master;        /* CPU的SPI作为主设备 */
+    SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;    /* 8个数据 */
+    SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;            /* CLK引脚空闲状态电平 = 0 */
+    SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;        /* 数据采样在第1个边沿(上升沿) */
+    SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;              /* 软件控制片选 */
 
-	/*
-		由于SPI1的时钟源是84M, SPI3的时钟源是42M。为了获得更快的速度，软件上选择SPI1。
-		pdf page=23 vs1053B SPI输入时钟 4个CLKI cycles； CLKI = 12.288M
-		因此最大SPI时钟 = 12.288 / 4 = 3.072MHz
-		需要 32分频
-	*/
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
+    /*
+        由于SPI1的时钟源是84M, SPI3的时钟源是42M。为了获得更快的速度，软件上选择SPI1。
+        pdf page=23 vs1053B SPI输入时钟 4个CLKI cycles； CLKI = 12.288M
+        因此最大SPI时钟 = 12.288 / 4 = 3.072MHz
+        需要 32分频
+    */
+    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
 
-	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;	/* 最高位先传输 */
-	SPI_InitStructure.SPI_CRCPolynomial = 7;
-	SPI_Init(SPI1,&SPI_InitStructure);
+    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;    /* 最高位先传输 */
+    SPI_InitStructure.SPI_CRCPolynomial = 7;
+    SPI_Init(SPI1,&SPI_InitStructure);
 
-	SPI_Cmd(SPI1, DISABLE);			/* 先禁止SPI  */
+    SPI_Cmd(SPI1, DISABLE);            /* 先禁止SPI  */
 
-	SPI_Cmd(SPI1, ENABLE);			/* 使能SPI  */
+    SPI_Cmd(SPI1, ENABLE);            /* 使能SPI  */
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_SetCS(0)
-*	功能说明: 设置CS。 用于运行中SPI共享。
-*	形    参: 无
-	返 回 值: 无
+*    函 数 名: vs1053_SetCS(0)
+*    功能说明: 设置CS。 用于运行中SPI共享。
+*    形    参: 无
+    返 回 值: 无
 *********************************************************************************************************
 */
 static void vs1053_SetCS(uint8_t _level)
 {
-	if (_level == 0)
-	{
-		bsp_SpiBusEnter();	/* 占用SPI总线， 用于总线共享 */
+    if (_level == 0)
+    {
+        bsp_SpiBusEnter();    /* 占用SPI总线， 用于总线共享 */
 
-		#ifdef SOFT_SPI		/* 软件SPI */
-			bsp_SetSpiSck(0);
-			VS1053_CS_0();
-		#endif
+        #ifdef SOFT_SPI        /* 软件SPI */
+            bsp_SetSpiSck(0);
+            VS1053_CS_0();
+        #endif
 
-		#ifdef HARD_SPI		/* 硬件SPI */
-			VS1053_CS_0();
+        #ifdef HARD_SPI        /* 硬件SPI */
+            VS1053_CS_0();
 
-			bsp_SPI_Init(SPI_Direction_2Lines_FullDuplex | SPI_Mode_Master | SPI_DataSize_8b
-				| SPI_CPOL_Low | SPI_CPHA_1Edge | SPI_NSS_Soft | SPI_BaudRatePrescaler_64 | SPI_FirstBit_MSB);
-		#endif
-	}
-	else
-	{
-		VS1053_CS_1();
+            bsp_SPI_Init(SPI_Direction_2Lines_FullDuplex | SPI_Mode_Master | SPI_DataSize_8b
+                | SPI_CPOL_Low | SPI_CPHA_1Edge | SPI_NSS_Soft | SPI_BaudRatePrescaler_64 | SPI_FirstBit_MSB);
+        #endif
+    }
+    else
+    {
+        VS1053_CS_1();
 
-		bsp_SpiBusExit();	/* 释放SPI总线， 用于总线共享 */
-	}
+        bsp_SpiBusExit();    /* 释放SPI总线， 用于总线共享 */
+    }
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_SetDS(0)
-*	功能说明: 设置DS。 用于运行中SPI共享。
-*	形    参: 无
-	返 回 值: 无
+*    函 数 名: vs1053_SetDS(0)
+*    功能说明: 设置DS。 用于运行中SPI共享。
+*    形    参: 无
+    返 回 值: 无
 *********************************************************************************************************
 */
 static void vs1053_SetDS(uint8_t _level)
 {
-	if (_level == 0)
-	{
-		bsp_SpiBusEnter();	/* 占用SPI总线， 用于总线共享 */
+    if (_level == 0)
+    {
+        bsp_SpiBusEnter();    /* 占用SPI总线， 用于总线共享 */
 
-		#ifdef SOFT_SPI		/* 软件SPI */
-			bsp_SetSpiSck(0);
-			VS1053_DS_0();
-		#endif
+        #ifdef SOFT_SPI        /* 软件SPI */
+            bsp_SetSpiSck(0);
+            VS1053_DS_0();
+        #endif
 
-		#ifdef HARD_SPI		/* 硬件SPI */
-			VS1053_DS_0();
+        #ifdef HARD_SPI        /* 硬件SPI */
+            VS1053_DS_0();
 
-			bsp_SPI_Init(SPI_Direction_2Lines_FullDuplex | SPI_Mode_Master | SPI_DataSize_8b
-				| SPI_CPOL_Low | SPI_CPHA_1Edge | SPI_NSS_Soft | SPI_BaudRatePrescaler_64 | SPI_FirstBit_MSB);
-		#endif
-	}
-	else
-	{
-		VS1053_DS_1();
+            bsp_SPI_Init(SPI_Direction_2Lines_FullDuplex | SPI_Mode_Master | SPI_DataSize_8b
+                | SPI_CPOL_Low | SPI_CPHA_1Edge | SPI_NSS_Soft | SPI_BaudRatePrescaler_64 | SPI_FirstBit_MSB);
+        #endif
+    }
+    else
+    {
+        VS1053_DS_1();
 
-		bsp_SpiBusExit();	/* 释放SPI总线， 用于总线共享 */
-	}
+        bsp_SpiBusExit();    /* 释放SPI总线， 用于总线共享 */
+    }
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_WriteCmd
-*	功能说明: 向vs1053写命令
-*	形    参: _ucAddr ： 地址； 		_usData ：数据
-*	返 回 值: 无
+*    函 数 名: vs1053_WriteCmd
+*    功能说明: 向vs1053写命令
+*    形    参: _ucAddr ： 地址；         _usData ：数据
+*    返 回 值: 无
 *********************************************************************************************************
 */
 void vs1053_WriteCmd(uint8_t _ucAddr, uint16_t _usData)
 {
-	/* 等待芯片内部操作完成 */
-	if (vs1053_WaitTimeOut())
-	{
-		return;
-	}
+    /* 等待芯片内部操作完成 */
+    if (vs1053_WaitTimeOut())
+    {
+        return;
+    }
 
-	vs1053_SetCS(0);
+    vs1053_SetCS(0);
 
-	bsp_spiWrite0(VS_WRITE_COMMAND);	/* 发送vs1053的写命令 */
-	bsp_spiWrite0(_ucAddr); 			/* 寄存器地址 */
-	bsp_spiWrite0(_usData >> 8); 	/* 发送高8位 */
-	bsp_spiWrite0(_usData);	 		/* 发送低8位 */
-	
-	vs1053_SetCS(1);
+    bsp_spiWrite0(VS_WRITE_COMMAND);    /* 发送vs1053的写命令 */
+    bsp_spiWrite0(_ucAddr);             /* 寄存器地址 */
+    bsp_spiWrite0(_usData >> 8);     /* 发送高8位 */
+    bsp_spiWrite0(_usData);             /* 发送低8位 */
+
+    vs1053_SetCS(1);
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_ReqNewData
-*	功能说明: 判断vs1053是否请求新数据。 vs1053内部有0.5k缓冲区。
-*	形    参: 无
-*	返 回 值: 无
+*    函 数 名: vs1053_ReqNewData
+*    功能说明: 判断vs1053是否请求新数据。 vs1053内部有0.5k缓冲区。
+*    形    参: 无
+*    返 回 值: 无
 *********************************************************************************************************
 */
 uint8_t vs1053_ReqNewData(void)
 {
-	if (VS1053_IS_BUSY())
-	{
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
+    if (VS1053_IS_BUSY())
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_PreWriteData
-*	功能说明: 准备向vs1053写数据，调用1次即可
-*	形    参: _无
-*	返 回 值: 无
+*    函 数 名: vs1053_PreWriteData
+*    功能说明: 准备向vs1053写数据，调用1次即可
+*    形    参: _无
+*    返 回 值: 无
 *********************************************************************************************************
 */
 void vs1053_PreWriteData(void)
 {
-	VS1053_CS_1();
-	VS1053_DS_0();
+    VS1053_CS_1();
+    VS1053_DS_0();
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_WriteData
-*	功能说明: 向vs1053写数据
-*	形    参: 无
-*	返 回 值: 无
+*    函 数 名: vs1053_WriteData
+*    功能说明: 向vs1053写数据
+*    形    参: 无
+*    返 回 值: 无
 *********************************************************************************************************
 */
 void vs1053_WriteData(uint8_t _ucData)
 {
-	vs1053_SetDS(0);
-	bsp_spiWrite0(_ucData);
-	vs1053_SetDS(1);
+    vs1053_SetDS(0);
+    bsp_spiWrite0(_ucData);
+    vs1053_SetDS(1);
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_ReadReg
-*	功能说明: 读vs1053的寄存器
-*	形    参: _ucAddr:寄存器地址
-*	返 回 值: 寄存器值
+*    函 数 名: vs1053_ReadReg
+*    功能说明: 读vs1053的寄存器
+*    形    参: _ucAddr:寄存器地址
+*    返 回 值: 寄存器值
 *********************************************************************************************************
 */
 uint16_t vs1053_ReadReg(uint8_t _ucAddr)
 {
-	uint16_t usTemp;
+    uint16_t usTemp;
 
-	/* 等待芯片内部操作完成 */
-	if (vs1053_WaitTimeOut())
-	{
-		return 0;
-	}
+    /* 等待芯片内部操作完成 */
+    if (vs1053_WaitTimeOut())
+    {
+        return 0;
+    }
 
-	vs1053_SetCS(0);
-	
-	bsp_spiWrite0(VS_READ_COMMAND);	/* 发送vs1053读命令 */
-	bsp_spiWrite0(_ucAddr);			/* 发送地址 */
-	usTemp = bsp_spiRead0() << 8;	/* 读取高字节 */
-	usTemp += bsp_spiRead0();		/* 读取低字节 */
-	
-	vs1053_SetCS(1);
-	return usTemp;
+    vs1053_SetCS(0);
+
+    bsp_spiWrite0(VS_READ_COMMAND);    /* 发送vs1053读命令 */
+    bsp_spiWrite0(_ucAddr);            /* 发送地址 */
+    usTemp = bsp_spiRead0() << 8;    /* 读取高字节 */
+    usTemp += bsp_spiRead0();        /* 读取低字节 */
+
+    vs1053_SetCS(1);
+    return usTemp;
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_ReadChipID
-*	功能说明: 读vs1053芯片的版本即ID， 用于识别是VS1003还是 VS1053
-*	形    参: 无
-*	返 回 值: 4bit的芯片ID。Version
+*    函 数 名: vs1053_ReadChipID
+*    功能说明: 读vs1053芯片的版本即ID， 用于识别是VS1003还是 VS1053
+*    形    参: 无
+*    返 回 值: 4bit的芯片ID。Version
 *********************************************************************************************************
 */
 uint8_t vs1053_ReadChipID(void)
 {
-	uint16_t usStatus;
-	/* pdf page 40
-		SCI STATUS 状态寄存器的 Bit7:4 表示芯片的版本
-		0 for VS1001
-		1 for VS1011
-		2 for VS1002
-		3 for VS1003
-		4 for VS1053,
-		5 for VS1033,
-		7 for VS1103.
-	*/
-	usStatus = vs1053_ReadReg(SCI_STATUS);
+    uint16_t usStatus;
+    /* pdf page 40
+        SCI STATUS 状态寄存器的 Bit7:4 表示芯片的版本
+        0 for VS1001
+        1 for VS1011
+        2 for VS1002
+        3 for VS1003
+        4 for VS1053,
+        5 for VS1033,
+        7 for VS1103.
+    */
+    usStatus = vs1053_ReadReg(SCI_STATUS);
 
-	return ((usStatus >> 4) & 0x000F);
+    return ((usStatus >> 4) & 0x000F);
 }
 
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_WaitBusy
-*	功能说明: 等待芯片内部结束操作。根据DREQ口线的状态识别芯片是否忙。该函数用于指令操作间延迟。
-*	形    参: 无
-*	返 回 值: 0 表示超时， 1表示
+*    函 数 名: vs1053_WaitBusy
+*    功能说明: 等待芯片内部结束操作。根据DREQ口线的状态识别芯片是否忙。该函数用于指令操作间延迟。
+*    形    参: 无
+*    返 回 值: 0 表示超时， 1表示
 *********************************************************************************************************
 */
 uint8_t vs1053_WaitTimeOut(void)
 {
-	uint32_t i;
+    uint32_t i;
 
-	for (i = 0; i < 4000000; i++)
-	{
-		if (!VS1053_IS_BUSY())
-		{
-			break;
-		}
-	}
+    for (i = 0; i < 4000000; i++)
+    {
+        if (!VS1053_IS_BUSY())
+        {
+            break;
+        }
+    }
 
-	if (i >= 4000000)
-	{
-		return 1;	/* 超时无应答，硬件异常 */
-	}
+    if (i >= 4000000)
+    {
+        return 1;    /* 超时无应答，硬件异常 */
+    }
 
-	return 0;	/* 正常返回 */
+    return 0;    /* 正常返回 */
 }
 
 void LoadUserPatch(void)
 {
-	int i = 0;
+    int i = 0;
 
-	while (i < sizeof(plugin) / sizeof(plugin[0]))
-	{
-		unsigned short addr, n, val;
+    while (i < sizeof(plugin) / sizeof(plugin[0]))
+    {
+        unsigned short addr, n, val;
 
-		addr = plugin[i++];
-		n = plugin[i++];
-		if (n & 0x8000U)
-		{
-			/* RLE run, replicate n samples */
-			n &= 0x7FFF;
-			val = plugin[i++];
-			while (n--)
-			{
-				vs1053_WriteCmd(addr, val);
-			}
-		}
-		else
-		{
-			/* Copy run, copy n samples */
-			while (n--)
-			{
-				val = plugin[i++];
-				vs1053_WriteCmd(addr, val);
-			}
-		}
-	}
-	/* 等待芯片内部操作完成 */
-	if (vs1053_WaitTimeOut())
-	{
-		return;
-	}
+        addr = plugin[i++];
+        n = plugin[i++];
+        if (n & 0x8000U)
+        {
+            /* RLE run, replicate n samples */
+            n &= 0x7FFF;
+            val = plugin[i++];
+            while (n--)
+            {
+                vs1053_WriteCmd(addr, val);
+            }
+        }
+        else
+        {
+            /* Copy run, copy n samples */
+            while (n--)
+            {
+                val = plugin[i++];
+                vs1053_WriteCmd(addr, val);
+            }
+        }
+    }
+    /* 等待芯片内部操作完成 */
+    if (vs1053_WaitTimeOut())
+    {
+        return;
+    }
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_TestRam
-*	功能说明: 测试vs1053B的内部RAM
-*	形    参: 无
-*	返 回 值: 1表示OK, 0表示错误.
+*    函 数 名: vs1053_TestRam
+*    功能说明: 测试vs1053B的内部RAM
+*    形    参: 无
+*    返 回 值: 1表示OK, 0表示错误.
 *********************************************************************************************************
 */
 uint8_t vs1053_TestRam(void)
 {
-	uint16_t usRegValue;
+    uint16_t usRegValue;
 
- 	vs1053_WriteCmd(SCI_MODE, 0x0820);	/* 进入vs1053的测试模式 */
+     vs1053_WriteCmd(SCI_MODE, 0x0820);    /* 进入vs1053的测试模式 */
 
-	/* 等待芯片内部操作完成 */
-	if (vs1053_WaitTimeOut())
-	{
-		return 0;
-	}
+    /* 等待芯片内部操作完成 */
+    if (vs1053_WaitTimeOut())
+    {
+        return 0;
+    }
 
-	vs1053_SetDS(0);
-	
-	bsp_spiWrite0(0x4d);
-	bsp_spiWrite0(0xea);
-	bsp_spiWrite0(0x6d);
-	bsp_spiWrite0(0x54);
-	bsp_spiWrite0(0x00);
-	bsp_spiWrite0(0x00);
-	bsp_spiWrite0(0x00);
-	bsp_spiWrite0(0x00);
-	
-	vs1053_SetDS(1);
+    vs1053_SetDS(0);
 
-	/* 等待芯片内部操作完成 */
-	if (vs1053_WaitTimeOut())
-	{
-		return 0;
-	}
+    bsp_spiWrite0(0x4d);
+    bsp_spiWrite0(0xea);
+    bsp_spiWrite0(0x6d);
+    bsp_spiWrite0(0x54);
+    bsp_spiWrite0(0x00);
+    bsp_spiWrite0(0x00);
+    bsp_spiWrite0(0x00);
+    bsp_spiWrite0(0x00);
 
-	usRegValue = vs1053_ReadReg(SCI_HDAT0); /* 如果得到的值为0x807F，则表明OK */
+    vs1053_SetDS(1);
 
-	if (usRegValue == 0x807F)
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+    /* 等待芯片内部操作完成 */
+    if (vs1053_WaitTimeOut())
+    {
+        return 0;
+    }
+
+    usRegValue = vs1053_ReadReg(SCI_HDAT0); /* 如果得到的值为0x807F，则表明OK */
+
+    if (usRegValue == 0x807F)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_TestSine
-*	功能说明: 正弦测试
-*	形    参: 无
-*	返 回 值: 无
+*    函 数 名: vs1053_TestSine
+*    功能说明: 正弦测试
+*    形    参: 无
+*    返 回 值: 无
 *********************************************************************************************************
 */
 void vs1053_TestSine(void)
 {
-	/*
-		正弦测试通过有序的8字节初始化，0x53 0xEF 0x6E n 0 0 0 0
-		想要退出正弦测试模式的话，发送如下序列 0x45 0x78 0x69 0x74 0 0 0 0 .
+    /*
+        正弦测试通过有序的8字节初始化，0x53 0xEF 0x6E n 0 0 0 0
+        想要退出正弦测试模式的话，发送如下序列 0x45 0x78 0x69 0x74 0 0 0 0 .
 
-		这里的n被定义为正弦测试使用，定义
-		如下：
-		n bits
-		名称位 描述
-		FsIdx 7：5 采样率索引
-		S 4：0 正弦跳过速度
-		正弦输出频率可通过这个公式计算：F=Fs×(S/128).
-		例如：正弦测试值为126 时被激活，二进制为
-		0b01111110。则FsIdx=0b011=3,所以Fs=22050Hz。
-		S=0b11110=30, 所以最终的正弦输出频率为
-		F=22050Hz×30/128=5168Hz。
+        这里的n被定义为正弦测试使用，定义
+        如下：
+        n bits
+        名称位 描述
+        FsIdx 7：5 采样率索引
+        S 4：0 正弦跳过速度
+        正弦输出频率可通过这个公式计算：F=Fs×(S/128).
+        例如：正弦测试值为126 时被激活，二进制为
+        0b01111110。则FsIdx=0b011=3,所以Fs=22050Hz。
+        S=0b11110=30, 所以最终的正弦输出频率为
+        F=22050Hz×30/128=5168Hz。
 
 
-		正弦输出频率可通过这个公式计算：F = Fs×(S/128).
-	*/
+        正弦输出频率可通过这个公式计算：F = Fs×(S/128).
+    */
 
-	vs1053_WriteCmd(0x0b,0x2020);	  	/* 设置音量	*/
- 	vs1053_WriteCmd(SCI_MODE, 0x0820);	/* 进入vs1053的测试模式	*/
+    vs1053_WriteCmd(0x0b,0x2020);          /* 设置音量    */
+     vs1053_WriteCmd(SCI_MODE, 0x0820);    /* 进入vs1053的测试模式    */
 
- 	/* 等待芯片内部操作完成 */
-	if (vs1053_WaitTimeOut())
-	{
-		return;
-	}
+     /* 等待芯片内部操作完成 */
+    if (vs1053_WaitTimeOut())
+    {
+        return;
+    }
 
- 	/*
- 		进入正弦测试状态
- 		命令序列：0x53 0xef 0x6e n 0x00 0x00 0x00 0x00
- 		其中n = 0x24, 设定vs1053所产生的正弦波的频率值
- 	*/
-	vs1053_SetDS(0);
-	bsp_spiWrite0(0x53);
-	bsp_spiWrite0(0xef);
-	bsp_spiWrite0(0x6e);
-	bsp_spiWrite0(0x24);	/* 0x24 or 0x44 */
-	bsp_spiWrite0(0x00);
-	bsp_spiWrite0(0x00);
-	bsp_spiWrite0(0x00);
-	bsp_spiWrite0(0x00);
-	vs1053_SetDS(1);
-
-	/* 退出正弦测试 */
+     /*
+         进入正弦测试状态
+         命令序列：0x53 0xef 0x6e n 0x00 0x00 0x00 0x00
+         其中n = 0x24, 设定vs1053所产生的正弦波的频率值
+     */
     vs1053_SetDS(0);
-	bsp_spiWrite0(0x45);
-	bsp_spiWrite0(0x78);
-	bsp_spiWrite0(0x69);
-	bsp_spiWrite0(0x74);
-	bsp_spiWrite0(0x00);
-	bsp_spiWrite0(0x00);
-	bsp_spiWrite0(0x00);
-	bsp_spiWrite0(0x00);
-	vs1053_SetDS(1);
+    bsp_spiWrite0(0x53);
+    bsp_spiWrite0(0xef);
+    bsp_spiWrite0(0x6e);
+    bsp_spiWrite0(0x24);    /* 0x24 or 0x44 */
+    bsp_spiWrite0(0x00);
+    bsp_spiWrite0(0x00);
+    bsp_spiWrite0(0x00);
+    bsp_spiWrite0(0x00);
+    vs1053_SetDS(1);
+
+    /* 退出正弦测试 */
+    vs1053_SetDS(0);
+    bsp_spiWrite0(0x45);
+    bsp_spiWrite0(0x78);
+    bsp_spiWrite0(0x69);
+    bsp_spiWrite0(0x74);
+    bsp_spiWrite0(0x00);
+    bsp_spiWrite0(0x00);
+    bsp_spiWrite0(0x00);
+    bsp_spiWrite0(0x00);
+    vs1053_SetDS(1);
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_SoftReset
-*	功能说明: 软复位vs1053。 在歌曲之间需要执行本函数。
-*	形    参: 无
-*	返 回 值: 无
+*    函 数 名: vs1053_SoftReset
+*    功能说明: 软复位vs1053。 在歌曲之间需要执行本函数。
+*    形    参: 无
+*    返 回 值: 无
 *********************************************************************************************************
 */
 void vs1053_SoftReset(void)
 {
-	uint8_t retry;
+    uint8_t retry;
 
-	/* 等待芯片内部操作完成 */
-	if (vs1053_WaitTimeOut())
-	{
-		return;
-	}
+    /* 等待芯片内部操作完成 */
+    if (vs1053_WaitTimeOut())
+    {
+        return;
+    }
 
-	//vs1053_WriteByte(0X00);//启动传输
-	retry = 0;
-	while(vs1053_ReadReg(SCI_MODE) != 0x0804) // 软件复位,新模式
-	{
-		/* 等待至少1.35ms  */
-		vs1053_WriteCmd(SCI_MODE, 0x0804);// 软件复位,新模式
+    //vs1053_WriteByte(0X00);//启动传输
+    retry = 0;
+    while(vs1053_ReadReg(SCI_MODE) != 0x0804) // 软件复位,新模式
+    {
+        /* 等待至少1.35ms  */
+        vs1053_WriteCmd(SCI_MODE, 0x0804);// 软件复位,新模式
 
-		/* 等待芯片内部操作完成 */
-		if (vs1053_WaitTimeOut())
-		{
-			return;
-		}
+        /* 等待芯片内部操作完成 */
+        if (vs1053_WaitTimeOut())
+        {
+            return;
+        }
 
-		if (retry++>5)
-		{
-			break;
-		}
-	}
+        if (retry++>5)
+        {
+            break;
+        }
+    }
 
 #if 0
-	vs1053_WriteCmd(SCI_CLOCKF,0x9800);
-	vs1053_WriteCmd(SCI_AUDATA,0xBB81); /* 采样率48k，立体声 */
+    vs1053_WriteCmd(SCI_CLOCKF,0x9800);
+    vs1053_WriteCmd(SCI_AUDATA,0xBB81); /* 采样率48k，立体声 */
 
-	vs1053_WriteCmd(SCI_BASS, 0x0000);	/* */
-    vs1053_WriteCmd(SCI_VOL, 0x2020); 	/* 设置为最大音量,0是最大  */
+    vs1053_WriteCmd(SCI_BASS, 0x0000);    /* */
+    vs1053_WriteCmd(SCI_VOL, 0x2020);     /* 设置为最大音量,0是最大  */
 
-	ResetDecodeTime();	/* 复位解码时间	*/
+    ResetDecodeTime();    /* 复位解码时间    */
 
     /* 向vs1053发送4个字节无效数据，用以启动SPI发送 */
     VS1053_DS_0();//选中数据传输
-	vs1053_WriteByte(0xFF);
-	vs1053_WriteByte(0xFF);
-	vs1053_WriteByte(0xFF);
-	vs1053_WriteByte(0xFF);
-	VS1053_DS_1();//取消数据传输
+    vs1053_WriteByte(0xFF);
+    vs1053_WriteByte(0xFF);
+    vs1053_WriteByte(0xFF);
+    vs1053_WriteByte(0xFF);
+    VS1053_DS_1();//取消数据传输
 #else
-	/* Set clock register, doubler etc. */
-	vs1053_WriteCmd(SCI_CLOCKF, 0xA000);
+    /* Set clock register, doubler etc. */
+    vs1053_WriteCmd(SCI_CLOCKF, 0xA000);
 
-	//vs1053_WriteCmd(SCI_BASS, 0x0000);	/* 低音高音增强控制， 0表示不启用 */
-    //vs1053_WriteCmd(SCI_VOL, 0x2020); 	/* 设置为最大音量,0是最大  */
+    //vs1053_WriteCmd(SCI_BASS, 0x0000);    /* 低音高音增强控制， 0表示不启用 */
+    //vs1053_WriteCmd(SCI_VOL, 0x2020);     /* 设置为最大音量,0是最大  */
 
-	/* 等待芯片内部操作完成 */
-	if (vs1053_WaitTimeOut())
-	{
-		return;
-	}
-	;
-	LoadUserPatch();
+    /* 等待芯片内部操作完成 */
+    if (vs1053_WaitTimeOut())
+    {
+        return;
+    }
+    ;
+    LoadUserPatch();
 #endif
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_SetVolume
-*	功能说明: 设置vs1053音量。0 是静音， 254最大
-*	形    参: 无
-*	返 回 值: 无
+*    函 数 名: vs1053_SetVolume
+*    功能说明: 设置vs1053音量。0 是静音， 254最大
+*    形    参: 无
+*    返 回 值: 无
 *********************************************************************************************************
 */
 void vs1053_SetVolume(uint8_t _ucVol)
 {
 
-	/* 对于 VS1053， 0表示最大音量，254表示静音 */
-	if (_ucVol == 0)
-	{
-		_ucVol = 254;
-	}
-	else if (_ucVol == 255)
-	{
-		_ucVol = 0;
-	}
-	else
-	{
-		_ucVol = 254 - _ucVol;
-	}
+    /* 对于 VS1053， 0表示最大音量，254表示静音 */
+    if (_ucVol == 0)
+    {
+        _ucVol = 254;
+    }
+    else if (_ucVol == 255)
+    {
+        _ucVol = 0;
+    }
+    else
+    {
+        _ucVol = 254 - _ucVol;
+    }
 
-	vs1053_WriteCmd(SCI_VOL, (_ucVol << 8) | _ucVol);
+    vs1053_WriteCmd(SCI_VOL, (_ucVol << 8) | _ucVol);
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: vs1053_SetBASS
-*	功能说明: 设置高音增强和低音增强
-*	形    参: _cHighAmp     : 高音增强幅度 【-8, 7】  (0是关闭)
-*			 _usHighFreqCut : 高音增强截止频率 【1000, 15000】 Hz
-*			 _ucLowAmp      : 低音增强幅度 【0, 15】  (0是关闭)
-*			 _usLowFreqCut : 低音增强截止频率 【20, 150】 Hz
-*	返 回 值: 无
+*    函 数 名: vs1053_SetBASS
+*    功能说明: 设置高音增强和低音增强
+*    形    参: _cHighAmp     : 高音增强幅度 【-8, 7】  (0是关闭)
+*             _usHighFreqCut : 高音增强截止频率 【1000, 15000】 Hz
+*             _ucLowAmp      : 低音增强幅度 【0, 15】  (0是关闭)
+*             _usLowFreqCut : 低音增强截止频率 【20, 150】 Hz
+*    返 回 值: 无
 *********************************************************************************************************
 */
 void vs1053_SetBASS(int8_t _cHighAmp, uint16_t _usHighFreqCut, uint8_t _ucLowAmp, uint16_t _usLowFreqCut)
 {
-	uint16_t usValue;
+    uint16_t usValue;
 
-	/*
-		SCI_BASS 寄存器定义:
+    /*
+        SCI_BASS 寄存器定义:
 
-		Bit15:12  高音控制 -8 ... 7  (0是关闭)
-		Bit11:8   下限频率,单位1KHz,  1...15
+        Bit15:12  高音控制 -8 ... 7  (0是关闭)
+        Bit11:8   下限频率,单位1KHz,  1...15
 
-		Bit7:4    低音控制 0...15 (0是关闭)
-		Bit3:0    上限频率,单位10Hz, 2...15
-	*/
+        Bit7:4    低音控制 0...15 (0是关闭)
+        Bit3:0    上限频率,单位10Hz, 2...15
+    */
 
-	/* 高音增强幅度 */
-	if (_cHighAmp < -8)
-	{
-		_cHighAmp = -8;
-	}
-	else if (_cHighAmp > 7)
-	{
-		_cHighAmp = 7;
-	}
-	usValue = _cHighAmp << 12;
+    /* 高音增强幅度 */
+    if (_cHighAmp < -8)
+    {
+        _cHighAmp = -8;
+    }
+    else if (_cHighAmp > 7)
+    {
+        _cHighAmp = 7;
+    }
+    usValue = _cHighAmp << 12;
 
-	/* 高音增强截止频率 */
-	if (_usHighFreqCut < 1000)
-	{
-		_usHighFreqCut = 1000;
-	}
-	else if (_usHighFreqCut > 15000)
-	{
-		_usHighFreqCut = 15000;
-	}
-	usValue  += ((_usHighFreqCut / 1000) << 8);
+    /* 高音增强截止频率 */
+    if (_usHighFreqCut < 1000)
+    {
+        _usHighFreqCut = 1000;
+    }
+    else if (_usHighFreqCut > 15000)
+    {
+        _usHighFreqCut = 15000;
+    }
+    usValue  += ((_usHighFreqCut / 1000) << 8);
 
-	/* 低音增强幅度 */
-	if (_ucLowAmp > 15)
-	{
-		_ucLowAmp = 15;
-	}
-	usValue  += (_ucLowAmp << 4);
+    /* 低音增强幅度 */
+    if (_ucLowAmp > 15)
+    {
+        _ucLowAmp = 15;
+    }
+    usValue  += (_ucLowAmp << 4);
 
-	/* 低音增强截止频率 */
-	if (_usLowFreqCut < 20)
-	{
-		_usLowFreqCut = 20;
-	}
-	else if (_usLowFreqCut > 150)
-	{
-		_usLowFreqCut = 150;
-	}
-	usValue  += (_usLowFreqCut / 10);
+    /* 低音增强截止频率 */
+    if (_usLowFreqCut < 20)
+    {
+        _usLowFreqCut = 20;
+    }
+    else if (_usLowFreqCut > 150)
+    {
+        _usLowFreqCut = 150;
+    }
+    usValue  += (_usLowFreqCut / 10);
 
-	vs1053_WriteCmd(SCI_BASS, usValue);
+    vs1053_WriteCmd(SCI_BASS, usValue);
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: ResetDecodeTime
-*	功能说明: 重设解码时间
-*	形    参: 无
-*	返 回 值: 无
+*    函 数 名: ResetDecodeTime
+*    功能说明: 重设解码时间
+*    形    参: 无
+*    返 回 值: 无
 *********************************************************************************************************
 */
 void ResetDecodeTime(void)
 {
-	vs1053_WriteCmd(SCI_DECODE_TIME, 0x0000);
+    vs1053_WriteCmd(SCI_DECODE_TIME, 0x0000);
 }
 
 /*
 *********************************************************************************************************
-*	下面的代码还未调试
+*    下面的代码还未调试
 *********************************************************************************************************
 */
 
@@ -805,25 +805,25 @@ void ResetDecodeTime(void)
 //ram 测试
 void VsRamTest(void)
 {
-	uint16_t u16 regvalue ;
+    uint16_t u16 regvalue ;
 
-	Mp3Reset();
- 	vs1053_CMD_Write(SPI_MODE,0x0820);// 进入vs1053的测试模式
-	while ((GPIOC->IDR&MP3_DREQ)==0); // 等待DREQ为高
- 	MP3_DCS_SET(0);	       			  // xDCS = 1，选择vs1053的数据接口
-	SPI1_ReadWriteByte(0x4d);
-	SPI1_ReadWriteByte(0xea);
-	SPI1_ReadWriteByte(0x6d);
-	SPI1_ReadWriteByte(0x54);
-	SPI1_ReadWriteByte(0x00);
-	SPI1_ReadWriteByte(0x00);
-	SPI1_ReadWriteByte(0x00);
-	SPI1_ReadWriteByte(0x00);
-	delay_ms(50);
-	MP3_DCS_SET(1);
-	regvalue=vs1053_REG_Read(SPI_HDAT0); // 如果得到的值为0x807F，则表明完好。
-	printf("regvalueH:%x\n",regvalue>>8);//输出结果
-	printf("regvalueL:%x\n",regvalue&0xff);//输出结果
+    Mp3Reset();
+     vs1053_CMD_Write(SPI_MODE,0x0820);// 进入vs1053的测试模式
+    while ((GPIOC->IDR&MP3_DREQ)==0); // 等待DREQ为高
+     MP3_DCS_SET(0);                         // xDCS = 1，选择vs1053的数据接口
+    SPI1_ReadWriteByte(0x4d);
+    SPI1_ReadWriteByte(0xea);
+    SPI1_ReadWriteByte(0x6d);
+    SPI1_ReadWriteByte(0x54);
+    SPI1_ReadWriteByte(0x00);
+    SPI1_ReadWriteByte(0x00);
+    SPI1_ReadWriteByte(0x00);
+    SPI1_ReadWriteByte(0x00);
+    delay_ms(50);
+    MP3_DCS_SET(1);
+    regvalue=vs1053_REG_Read(SPI_HDAT0); // 如果得到的值为0x807F，则表明完好。
+    printf("regvalueH:%x\n",regvalue>>8);//输出结果
+    printf("regvalueL:%x\n",regvalue&0xff);//输出结果
 }
 
 //FOR WAV HEAD0 :0X7761 HEAD1:0X7665
@@ -833,15 +833,15 @@ void VsRamTest(void)
 //比特率预定值
 const uint16_t bitrate[2][16]=
 {
-	{0,8,16,24,32,40,48,56,64,80,96,112,128,144,160,0},
-	{0,32,40,48,56,64,80,96,112,128,160,192,224,256,320,0}
+    {0,8,16,24,32,40,48,56,64,80,96,112,128,144,160,0},
+    {0,32,40,48,56,64,80,96,112,128,160,192,224,256,320,0}
 };
 //返回Kbps的大小
 //得到mp3&wma的波特率
 uint16_t GetHeadInfo(void)
 {
-	unsigned int HEAD0;
-	unsigned int HEAD1;
+    unsigned int HEAD0;
+    unsigned int HEAD1;
 
     HEAD0=vs1053_REG_Read(SPI_HDAT0);
     HEAD1=vs1053_REG_Read(SPI_HDAT1);
@@ -874,22 +874,22 @@ uint16_t GetDecodeTime(void)
 //加载频谱分析的代码到vs1053
 void LoadPatch(void)
 {
-	uint16_t i;
+    uint16_t i;
 
-	for (i=0;i<943;i++)vs1053_CMD_Write(atab[i],dtab[i]);
-	delay_ms(10);
+    for (i=0;i<943;i++)vs1053_CMD_Write(atab[i],dtab[i]);
+    delay_ms(10);
 }
 //得到频谱数据
 void GetSpec(u8 *p)
 {
-	u8 byteIndex=0;
-	u8 temp;
-	vs1053_CMD_Write(SPI_WRAMADDR,0x1804);
-	for (byteIndex=0;byteIndex<14;byteIndex++)
-	{
-		temp=vs1053_REG_Read(SPI_WRAM)&0x63;//取小于100的数
-		*p++=temp;
-	}
+    u8 byteIndex=0;
+    u8 temp;
+    vs1053_CMD_Write(SPI_WRAMADDR,0x1804);
+    for (byteIndex=0;byteIndex<14;byteIndex++)
+    {
+        temp=vs1053_REG_Read(SPI_WRAM)&0x63;//取小于100的数
+        *p++=temp;
+    }
 }
 
 //设定vs1053播放的音量和高低音
@@ -910,7 +910,7 @@ void set1003(void)
         bass<<=4;
         bass+=vs1053ram[t];
     }
-	vs1053_CMD_Write(SPI_BASS, 0x0000);//BASS
+    vs1053_CMD_Write(SPI_BASS, 0x0000);//BASS
     vs1053_CMD_Write(SPI_VOL, 0x0000); //设音量
 }
 

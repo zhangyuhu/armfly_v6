@@ -59,7 +59,7 @@ int32_t SER_PutChar (int32_t ch) {
 #else
   while (!(USART1->SR & 0x0080));
   USART1->DR = (ch & 0xFF);
-#endif  
+#endif
 
   return (ch);
 }

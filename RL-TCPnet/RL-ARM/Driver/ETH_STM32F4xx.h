@@ -1,20 +1,20 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : STM32F4XX的MAC驱动
-*	文件名称 : ETH_STM32F4XX.C
-*	版    本 : V2.0
-*	说    明 : 由官方的驱动修改而来。
+*    模块名称 : STM32F4XX的MAC驱动
+*    文件名称 : ETH_STM32F4XX.C
+*    版    本 : V2.0
+*    说    明 : 由官方的驱动修改而来。
 *              1. 原始驱动支持DP83848C 和ST802RT1，修改为仅支持DM9161/9162，方便驱动的规范化。
 *              2. 增加PHY的中断触发功能，主要用于检测网线的连接状态。
 *              3. 变量g_ucEthLinkStatus用于表示连接状态。
-*                         
-*	修改记录 :
-*		版本号    日期         作者            说明
+*
+*    修改记录 :
+*        版本号    日期         作者            说明
 *       V1.0    2015-12-22    Eric2013         首发
 *       V2.0    2017-04-17    Eric2013         整理，并使其规范化
 *
-*	Copyright (C), 2015-2020, 安富莱电子 www.armfly.com
+*    Copyright (C), 2015-2020, 安富莱电子 www.armfly.com
 *
 *********************************************************************************************************
 */
@@ -355,14 +355,14 @@ typedef struct {
 /* PHY Extended Registers  only for DM9161/9162 */
 #define PHY_REG_DSCR        0x10     /* Specified Congfiguration Register            */
 #define PHY_REG_DSCSR       0x11     /* Specified Congfiguration and Status Register */
-#define PHY_REG_10BTCSR     0x12     /* 10Base-T Status/Control Register     		 */
-#define PHY_REG_PWDOR       0x13     /* Power Down Control Register       			 */
-#define PHY_REG_CONGFIG   	0x14     /* Specified Congfig Register      			 */
-#define PHY_REG_INTERRUPT   0x15     /* Specified interrupt Register             	 */
-#define PHY_REG_SRECR       0x16     /* Specified Receive Error Counter  			 */
+#define PHY_REG_10BTCSR     0x12     /* 10Base-T Status/Control Register              */
+#define PHY_REG_PWDOR       0x13     /* Power Down Control Register                    */
+#define PHY_REG_CONGFIG       0x14     /* Specified Congfig Register                   */
+#define PHY_REG_INTERRUPT   0x15     /* Specified interrupt Register                  */
+#define PHY_REG_SRECR       0x16     /* Specified Receive Error Counter               */
 #define PHY_REG_DISCR       0x17     /* Specified Disconnect Counter Register        */
-#define PHY_REG_RLSR       	0x18     /* Hardware reset latch state Register			 */
-#define PHY_REG_PSCR       	0x1D     /* Power Saving control register                */
+#define PHY_REG_RLSR           0x18     /* Hardware reset latch state Register             */
+#define PHY_REG_PSCR           0x1D     /* Power Saving control register                */
 
 
 #define PHY_DEF_ADDR        0x01        /* Default PHY device address        */

@@ -1,18 +1,18 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : SDIO的底层驱动
-*	文件名称 : SDIO_STM32F103.c
-*	版    本 : V1.0
-*	说    明 : 本文件来自KEIL官方，为支持V6开发板，修改地方有二
+*    模块名称 : SDIO的底层驱动
+*    文件名称 : SDIO_STM32F103.c
+*    版    本 : V1.0
+*    说    明 : 本文件来自KEIL官方，为支持V6开发板，修改地方有二
 *              1. Init函数中SD检测引脚改成PE2。
 *              2. CheckMedia函数改成使用PE2做检测。
 *
-*	修改记录 :
-*		版本号    日期         作者            说明
+*    修改记录 :
+*        版本号    日期         作者            说明
 *       V1.0    2015-09-10   Eric2013    1. RL-FlashFS版本V4.74
 *
-*	Copyright (C), 2015-2020, 安富莱电子 www.armfly.com
+*    Copyright (C), 2015-2020, 安富莱电子 www.armfly.com
 *
 *********************************************************************************************************
 */
@@ -84,12 +84,12 @@ static BOOL Init (void) {
                   RCC_AHB1ENR_GPIODEN |
                   RCC_AHB1ENR_GPIOCEN;
 
-  RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN; 
+  RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
   /* Enable IO compensation cell */
   SYSCFG->CMPCR |= SYSCFG_CMPCR_CMP_PD;
-  while (!(SYSCFG->CMPCR & SYSCFG_CMPCR_READY)); 
+  while (!(SYSCFG->CMPCR & SYSCFG_CMPCR_READY));
 
-  /* PC.08, PC.09, PC.10, PC.11, PC.12 pin: D0, D1, D2, D3, CLK pin */ 
+  /* PC.08, PC.09, PC.10, PC.11, PC.12 pin: D0, D1, D2, D3, CLK pin */
   GPIOC->MODER   &= ~0x03FF0000;
   GPIOC->MODER   |=  0x02AA0000;        /* Pins to alternate function         */
   GPIOC->OTYPER  &= ~0x00001F00;        /* Configure as push-pull pins        */
@@ -105,7 +105,7 @@ static BOOL Init (void) {
   GPIOD->MODER   |=  0x0000020;         /* Pins to alternate function         */
   GPIOD->OTYPER  &= ~0x0000004;         /* Configure as push-pull pin         */
   GPIOD->PUPDR   &= ~0x0000030;
-  GPIOD->PUPDR   |=  0x0000010;         /* Pull-up on pin                     */       
+  GPIOD->PUPDR   |=  0x0000010;         /* Pull-up on pin                     */
   GPIOD->OSPEEDR |=  0x0000030;         /* Pins output speed to 100MHz        */
 
   GPIOD->AFR[0]  &= ~0x00000F00;
@@ -171,7 +171,7 @@ static BOOL BusMode (U32 mode) {
     case BUS_PUSH_PULL:
       GPIOD->OTYPER  &= ~0x00000010;    /* Configure as push-pull pin         */
       return (__TRUE);
-    
+
     default:
       return (__FALSE);
   }
@@ -195,7 +195,7 @@ static BOOL BusWidth (U32 width) {
       SDIO->CLKCR |=  SDIO_CLKCR_WIDBUS_0;
       return (__TRUE);
 #endif
-    
+
     default:
       return (__FALSE);
   }
@@ -242,11 +242,11 @@ static BOOL Command (U8 cmd, U32 arg, U32 resp_type, U32 *rp) {
     /* Wait until command finished. */
     while (SDIO->STA & SDIO_STA_CMDACT);
     stat = SDIO->STA;
-    SDIO->ICR = 0x00C007FF; 
+    SDIO->ICR = 0x00C007FF;
     if (stat & SDIO_STA_CMDSENT) {
       return (__TRUE);
     }
-    return (__FALSE);    
+    return (__FALSE);
   }
 
   for (;;) {
@@ -299,11 +299,11 @@ static BOOL ReadBlock (U32 bl, U8 *buf, U32 cnt) {
                   SDIO_DCTRL_DMAEN        | SDIO_DCTRL_DTDIR        |
                   SDIO_DCTRL_DTEN         ;
 
-  for (i = DMA_TOUT; i; i--) {    
+  for (i = DMA_TOUT; i; i--) {
     if (DMA2->LISR & DMA_LISR_TEIF3) {
       break;
     }
-    
+
     if (DMA2->LISR & DMA_LISR_TCIF3) {
       if ((SDIO->STA & (SDIO_STA_DBCKEND|SDIO_STA_DATAEND)) == (SDIO_STA_DBCKEND|SDIO_STA_DATAEND)) {
         /* Data transfer finished. */
@@ -331,9 +331,9 @@ static BOOL WriteBlock (U32 bl, U8 *buf, U32 cnt) {
     if (DMA2->LISR & DMA_LISR_TEIF3) {
       break;
     }
-    
+
     if (DMA2->LISR & DMA_LISR_TCIF3) {
-      if ((SDIO->STA & (SDIO_STA_DBCKEND|SDIO_STA_DATAEND)) == (SDIO_STA_DBCKEND|SDIO_STA_DATAEND)) { 
+      if ((SDIO->STA & (SDIO_STA_DBCKEND|SDIO_STA_DATAEND)) == (SDIO_STA_DBCKEND|SDIO_STA_DATAEND)) {
         /* Data transfer finished. */
         return (__TRUE);
       }
@@ -401,7 +401,7 @@ static U32 CheckMedia (void) {
     stat |= M_INSERTED;
   }
 
- #if 0 
+ #if 0
   if (/* Write protect switch is active */) {
     stat |= M_PROTECTED;
   }
@@ -409,61 +409,61 @@ static U32 CheckMedia (void) {
 
   return (stat);
 }
-  
+
 
 /*--------------------------- SD_Link_EXTIConfig ---------------------------------------*/
 
 void SD_Link_EXTIConfig(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
-	EXTI_InitTypeDef EXTI_InitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure;
+    EXTI_InitTypeDef EXTI_InitStructure;
+    NVIC_InitTypeDef NVIC_InitStructure;
 
-	/* 安富莱STM32-V6开发板使用PE2作为中断输入口, 下降沿表示中断信号 
-	   未插入SD卡的时，PE2引脚是高电平，插入后，PE2引脚是低电平。
-	*/
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+    /* 安富莱STM32-V6开发板使用PE2作为中断输入口, 下降沿表示中断信号
+       未插入SD卡的时，PE2引脚是高电平，插入后，PE2引脚是低电平。
+    */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 
-	/* 配置中断引脚是输入 */
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-	GPIO_Init(GPIOE, &GPIO_InitStructure);
+    /* 配置中断引脚是输入 */
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+    GPIO_Init(GPIOE, &GPIO_InitStructure);
 
-	/* 配置外部中断线连接到相应引脚 */
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource2);
+    /* 配置外部中断线连接到相应引脚 */
+    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource2);
 
-	/* 配置外部中断线 */
-	EXTI_InitStructure.EXTI_Line = EXTI_Line2;
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_Init(&EXTI_InitStructure);
+    /* 配置外部中断线 */
+    EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
 
-	/* 使能中断通道 */
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+    /* 使能中断通道 */
+    NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
 }
 
 /*--------------------------- EXTI2_IRQHandler ---------------------------------------*/
 void EXTI2_IRQHandler(void)
 {
-	if (EXTI_GetITStatus(EXTI_Line2) != RESET)
-	{
-		EXTI->IMR&=~(1<<2);	 /* 关闭中断 */
-		if(HandlePinDetectStart)
-		{
-			isr_evt_set(SDDetectBIT_0, HandlePinDetectStart);
-		}
-		
-		/* 清中断挂起位 */
-		EXTI_ClearITPendingBit(EXTI_Line2);
-	}
+    if (EXTI_GetITStatus(EXTI_Line2) != RESET)
+    {
+        EXTI->IMR&=~(1<<2);     /* 关闭中断 */
+        if(HandlePinDetectStart)
+        {
+            isr_evt_set(SDDetectBIT_0, HandlePinDetectStart);
+        }
+
+        /* 清中断挂起位 */
+        EXTI_ClearITPendingBit(EXTI_Line2);
+    }
 }
 
 /*-----------------------------------------------------------------------------
