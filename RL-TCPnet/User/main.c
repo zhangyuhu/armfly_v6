@@ -1,68 +1,9 @@
 /*
 *********************************************************************************************************
-*
-*    模块名称 : 主程序模块。
-*    文件名称 : main.c
-*    版    本 : V1.0
-*    说    明 : FreeRTOS + RL-TCPnet的工程模板的实现。
-*              实验目的：
-*                1. 学习FreeRTOS + RL-TCPnet的工程模板的制作。
-*              实验内容：
-*                1. 按下摇杆的OK键可以通过串口打印任务执行情况（波特率115200，数据位8，奇偶校验位无，停止位1）
-*                   =================================================
-*                   任务名      任务状态 优先级   剩余栈 任务序号
-*                   vTaskUserIF     R       1       181     1
-*                   IDLE            R       0       117     6
-*                   vTaskMsgPro     B       3       489     3
-*                   vTaskStart      B       5       434     5
-*                   vTaskLED        B       2       483     2
-*                   vTaskTCPnet     B       4       448     4
-*
-*                   任务名       运行计数         使用率
-*                   vTaskUserIF     226             <1%
-*                   IDLE            1335930         97%
-*                   vTaskStart      36419           2%
-*                   vTaskLED        0               <1%
-*                   vTaskTCPnet     5               <1%
-*                   vTaskMsgPro     1               <1%
-*                  串口软件建议使用SecureCRT（V6光盘里面有此软件）查看打印信息。
-*                  各个任务实现的功能如下：
-*                   vTaskTaskUserIF 任务: 按键消息处理。
-*                   vTaskLED        任务: LED闪烁。
-*                   vTaskMsgPro     任务: 消息处理，这里用作按键检测。
-*                   vTaskTCPnet     任务: RL-TCPnet测试任务。
-*                   vTaskStart      任务: 启动任务，实现RL-TCPnet的时间基准更新。
-*                2. 任务运行状态的定义如下，跟上面串口打印字母B, R, D, S对应：
-*                    #define tskBLOCKED_CHAR        ( 'B' )  阻塞
-*                    #define tskREADY_CHAR            ( 'R' )  就绪
-*                    #define tskDELETED_CHAR        ( 'D' )  删除
-*                    #define tskSUSPENDED_CHAR        ( 'S' )  挂起
-*                3. 强烈推荐将网线接到路由器或者交换机上面测试，因为已经使能了DHCP，可以自动获取IP地址。
-*                4. 创建了一个TCP Server，而且使能了局域网域名NetBIOS，用户只需在电脑端ping armfly
-*                   就可以获得板子的IP地址，端口号1001。
-*                5. 用户可以在电脑端用网络调试软件创建TCP Client连接此服务器端。
-*                6. 按键K1按下，发送8字节的数据给TCP Client。
-*                7. 按键K2按下，发送1024字节的数据给TCP Client。
-*                8. 按键K3按下，发送5MB字节的数据给TCP Client。
-*              注意事项：
-*                1. 本实验推荐使用串口软件SecureCRT，要不串口打印效果不整齐。此软件在
-*                   V6开发板光盘里面有。
-*                2. 务必将编辑器的缩进参数和TAB设置为4来阅读本文件，要不代码显示不整齐。
-*
-*    修改记录 :
-*        版本号    日期         作者            说明
-*       V1.0    2017-04-28   Eric2013    1. ST固件库到V1.6.1版本
-*                                        2. BSP驱动包V1.2
-*                                        3. FreeRTOS版本V8.2.3
-*                                        4. RL-TCPnet版本V4.74
-*
-*    Copyright (C), 2016-2020, 安富莱电子 www.armfly.com
-*
+*   RL-TCPnet的多个TCP客户端实现
 *********************************************************************************************************
 */
 #include "includes.h"
-
-
 
 /*
 **********************************************************************************************************
@@ -180,6 +121,24 @@ static void vTaskTaskUserIF(void *pvParameters)
                     App_Printf("K3键按下，直接发送事件标志给任务AppTaskTCPMain，bit2被设置\r\n");
                     xEventGroupSetBits(xCreatedEventGroup, KEY3_BIT2);
                     break;
+
+                /* 摇杆上键按下，直接发送事件标志给任务AppTaskTCPMain，设置bit3 */
+                case JOY_DOWN_U:
+                  App_Printf("摇杆上键按下，直接发送事件标志给任务AppTaskTCPMain，设置bit3\r\n");
+                    xEventGroupSetBits(xCreatedEventGroup, JOY_U_BIT3);
+                  break;
+
+                /* 摇杆左键按下，直接发送事件标志给任务AppTaskTCPMain，设置bit4 */
+                case JOY_DOWN_L:
+                  App_Printf("摇杆左键按下，直接发送事件标志给任务AppTaskTCPMain，设置bit4\r\n");
+                  xEventGroupSetBits(xCreatedEventGroup, JOY_L_BIT4);
+                  break;
+
+                /* 摇杆右键按下，直接发送事件标志给任务AppTaskTCPMain，设置bit5 */
+                case JOY_DOWN_R:
+                  App_Printf("摇杆右键按下，直接发送事件标志给任务AppTaskTCPMain，设置bit5\r\n");
+                    xEventGroupSetBits(xCreatedEventGroup, JOY_R_BIT5);
+                  break;
 
                 /* 摇杆的OK键按下，打印任务执行情况 */
                 case JOY_DOWN_OK:
@@ -398,7 +357,7 @@ static void  App_Printf(char *format, ...)
 
     printf("%s", buf_str);
 
-       xSemaphoreGive(xMutex);
+    xSemaphoreGive(xMutex);
 }
 
 /***************************** 安富莱电子 www.armfly.com (END OF FILE) *********************************/

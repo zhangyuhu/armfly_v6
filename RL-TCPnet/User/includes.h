@@ -50,9 +50,13 @@
 *********************************************************************************************************
 */
 /* 给TCPnet任务发的事件标志 */
-#define KEY1_BIT0    (1 << 0)
-#define KEY2_BIT1    (1 << 1)
-#define KEY3_BIT2   (1 << 2)
+#define KEY1_BIT0       (1 << 0)
+#define KEY2_BIT1       (1 << 1)
+#define KEY3_BIT2       (1 << 2)
+#define JOY_U_BIT3      (1 << 3)
+#define JOY_L_BIT4      (1 << 4)
+#define JOY_R_BIT5      (1 << 5)
+
 
 
 /*

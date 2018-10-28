@@ -463,6 +463,21 @@
               <FileType>1</FileType>
               <FilePath>..\..\User\libapp\app_tcpnet_lib.c</FilePath>
             </File>
+            <File>
+              <FileName>app_tcpclinet1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\libapp\app_tcpclinet1.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_tcpclinet2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\libapp\app_tcpclinet2.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_tcpclinet3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\libapp\app_tcpclinet3.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

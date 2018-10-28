@@ -507,7 +507,7 @@
 //   <o>Number of TCP Sockets <1-20>
 //   <i> Number of available TCP sockets
 //   <i> Default: 5
-#define TCP_NUMSOCKS   2
+#define TCP_NUMSOCKS   4
 
 //   <o>Number of Retries <0-20>
 //   <i> How many times TCP module will try to retransmit data
