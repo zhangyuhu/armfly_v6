@@ -22,11 +22,11 @@
 // ===========================
 //   <o>Memory Management Debug <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off Dynamic Memory debug messages
-#define DBG_MEM        0
+#define DBG_MEM        1
 
 //   <o>Ethernet Debug <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off Ethernet debug messages
-#define DBG_ETH        0
+#define DBG_ETH        1
 
 //   <o>PPP Debug   <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off PPP debug messages
@@ -38,35 +38,35 @@
 
 //   <o>ARP Debug   <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off ARP debug messages
-#define DBG_ARP        0
+#define DBG_ARP        1
 
 //   <o>IP Debug    <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off IP debug messages
-#define DBG_IP         0
+#define DBG_IP         2
 
 //   <o>ICMP Debug  <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off ICMP debug messages
-#define DBG_ICMP       0
+#define DBG_ICMP       1
 
 //   <o>IGMP Debug  <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off IGMP debug messages
-#define DBG_IGMP       0
+#define DBG_IGMP       1
 
 //   <o>UDP Debug   <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off UDP debug messages
-#define DBG_UDP        0
+#define DBG_UDP        1
 
 //   <o>TCP Debug   <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off TCP debug messages
-#define DBG_TCP        0
+#define DBG_TCP        2
 
 //   <o>NBNS Debug  <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off NetBIOS Name Service debug messages
-#define DBG_NBNS       0
+#define DBG_NBNS       2
 
 //   <o>DHCP Debug  <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off Dynamic Host Configuration debug messages
-#define DBG_DHCP       0
+#define DBG_DHCP       2
 
 //   <o>DNS Debug   <0=> Off <1=> Errors only <2=> Full debug
 //   <i> Turn On/Off Domain Name Service debug messages

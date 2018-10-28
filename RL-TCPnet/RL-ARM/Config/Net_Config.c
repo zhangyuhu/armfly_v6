@@ -20,7 +20,7 @@
 //   <i> This is the name under which embedded host
 //   <i> can be accessed on a local area network.
 //   <i> Default: "mcb2300"
-#define LHOST_NAME     "armfly"
+#define LHOST_NAME     "hulk"
 
 //   <o>Memory Pool size <1536-262144:4><#/4>
 //   <i> This is the size of a memory pool in bytes. Buffers for
